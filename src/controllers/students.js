@@ -4,9 +4,10 @@ import {
   deleteStudent,
   getAllStudents,
   getStudentById,
+  updateStudent,
 } from '../services/students.js';
 
-export const getStudentsController = async (req, res, next) => {
+export const getStudentsController = async (req, res) => {
   const students = await getAllStudents();
 
   res.json({
@@ -33,6 +34,8 @@ export const getStudentByIdController = async (req, res) => {
   });
 };
 
+//* POST
+
 export const createStudentController = async (req, res) => {
   const student = await createStudent(req.body);
 
@@ -43,19 +46,64 @@ export const createStudentController = async (req, res) => {
   });
 };
 
-export const deleteStudentController = async (req, res, next) => {
+//* DELETE
+
+export const deleteStudentController = async (req, res) => {
   const { studentId } = req.params;
 
   const student = await deleteStudent(studentId);
 
   if (!student) {
-    next(createHttpError(404, 'Student not found'));
-    return;
+    throw createHttpError(404, 'Student not found');
   }
 
   res.status(204).send();
 };
 
+//* PUT
+
 export const upsertStudentController = async (req, res) => {
+  const { studentId } = req.params; //Отримує studentId із параметрів URL (req.params)
+
+  const result = await updateStudent(studentId, req.body, { upsert: true }); // Викликається updateStudent, яка оновлює дані студента або створює нового (upsert: true). req.body містить дані для оновлення.
+
+  if (!result) {
+    throw createHttpError(404, 'Student not found');
+  }
+
+  const status = result.isNew ? 201 : 200; //Якщо студент був створений (isNew === true) → 201 Created. Якщо студент просто оновлений (isNew === false) → 200 OK.
+  // isNew береться з результату, що повертається з функції updateStudent
+
+  res.status(status).json({
+    status,
+    message: `Successfully upserted a student!`,
+    data: result.student,
+  });
+};
+
+//* upsertStudentController:
+// Використовує upsert: true в updateStudent.
+// Студента можна створити (якщо не знайдено) або оновити.
+// Статус відповіді: 201 (якщо створено), 200 (якщо оновлено).
+
+//* patchStudentController:
+// Не використовує upsert.
+// Студента тільки оновлює (якщо студент не знайдений, повертається 404).
+// Статус відповіді: завжди 200 (оновлено).
+
+//* PATCH
+
+export const patchStudentController = async (req, res) => {
   const { studentId } = req.params;
+  const result = await updateStudent(studentId, req.body);
+
+  if (!result) {
+    throw createHttpError(404, 'Student not found');
+  }
+
+  res.json({
+    status: 200,
+    message: `Successfully patched a student!`,
+    data: result.student,
+  });
 };
