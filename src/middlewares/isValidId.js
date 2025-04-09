@@ -1,6 +1,6 @@
 // src/middlewares/isValidId.js
 
-import { isValidObjectId } from 'mongoose';
+import { isValidObjectId } from 'mongoose'; // передаємо строку якщо може бути айді - true, якщо не може - false
 import createHttpError from 'http-errors';
 
 export const isValidId = (req, res, next) => {

@@ -6,9 +6,13 @@ import {
   getStudentById,
   updateStudent,
 } from '../services/students.js';
+import { parsePaginationParams } from '../utils/parsePaginationParams.js';
 
 export const getStudentsController = async (req, res) => {
-  const students = await getAllStudents();
+  // Отримуємо параметри пагінації (сторінка і кількість на сторінці) з запиту
+  const { page, perPage } = parsePaginationParams(req.query);
+  // Викликаємо функцію для отримання списку студентів з вказаною пагінацією
+  const students = await getAllStudents({ page, perPage });
 
   res.json({
     status: 200,

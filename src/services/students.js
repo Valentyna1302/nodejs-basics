@@ -1,8 +1,37 @@
 import { StudentsCollection } from '../db/models/student.js';
+import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 
-export const getAllStudents = async () => {
-  const students = await StudentsCollection.find();
-  return students;
+// export const getAllStudents = async () => {
+//   const students = await StudentsCollection.find();
+//   return students;
+// };
+
+// Функція для отримання всіх студентів з пагінацією
+export const getAllStudents = async ({ page, perPage }) => {
+  // Встановлюємо кількість елементів на сторінці (limit)
+  const limit = perPage;
+  // Обчислюємо пропуск елементів (skip) для пагінації
+  const skip = (page - 1) * perPage;
+
+  // Створюємо запит для отримання колекції студентів
+  const studentsQuery = StudentsCollection.find();
+
+  // Обчислюємо загальну кількість студентів
+  const studentsCount = await StudentsCollection.find()
+    .merge(studentsQuery) // Зливаємо запит для підрахунку студентів
+    .countDocuments(); // Підраховуємо документи (студентів)
+
+  // Отримуємо студентів з застосуванням пагінації
+  const students = await studentsQuery.skip(skip).limit(limit).exec();
+
+  // Обчислюємо додаткові дані для пагінації
+  const paginationData = calculatePaginationData(studentsCount, perPage, page);
+
+  // Повертаємо результати з даними студентів і пагінацією
+  return {
+    data: students, // Список студентів на поточній сторінці
+    ...paginationData, // Розширюємо результат додатковими даними пагінації
+  };
 };
 
 export const getStudentById = async (studentId) => {
