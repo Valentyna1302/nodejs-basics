@@ -1,4 +1,6 @@
 import { model, Schema } from 'mongoose';
+import { typeList } from '../../constants/students.js';
+import { handleSaveError, setUpdateSetting } from './hooks.js';
 
 // 1. Далі, за допомогою класу Schema з бібліотеки mongoose,  створимо схему для опису структури документа студента.
 
@@ -17,7 +19,7 @@ const studentsSchema = new Schema(
     gender: {
       type: String,
       required: true,
-      enum: ['male', 'female', 'other'], // це перелік допустимих значень для поля
+      enum: typeList, // це перелік допустимих значень для поля
     },
     avgMark: {
       type: Number,
@@ -34,6 +36,12 @@ const studentsSchema = new Schema(
     versionKey: false, // versionKey — вказує, чи має бути створене поле __v для відстеження версій документу. У нашому випадку ми встановлюємо false, щоб це поле не створювалося.
   },
 );
+
+studentsSchema.post('save', handleSaveError); // тут пост не має ніякого відношення до http запитів, тут він означає "після"
+
+studentsSchema.pre('findOneAndUpdate', setUpdateSetting);
+
+studentsSchema.post('findOneAndUpdate', handleSaveError);
 
 // 2. Останнім кроком створюємо модель студента StudentsCollection за допомогою схеми.
 

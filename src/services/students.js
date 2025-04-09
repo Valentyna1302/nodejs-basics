@@ -33,7 +33,10 @@ export const updateStudent = async (studentId, payload, options = {}) => {
   const rawResult = await StudentsCollection.findOneAndUpdate(
     { _id: studentId }, //обєкт, який містить умови пошуку документа у колекції за його властивостями
     payload, //обєкт, який містить дані для оновлення
-    { new: true, includeResultMetadata: true, ...options }, // налаштування оновлення
+    {
+      includeResultMetadata: true,
+      ...options,
+    }, // налаштування оновлення
   );
 
   if (!rawResult || !rawResult.value) return null;
