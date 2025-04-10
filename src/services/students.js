@@ -23,6 +23,9 @@ export const getAllStudents = async ({ page, perPage }) => {
 
   // Отримуємо студентів з застосуванням пагінації
   const students = await studentsQuery.skip(skip).limit(limit).exec();
+  //skip(n)	Пропустити перші n результатів
+  // limit(n)	Отримати максимум n результатів
+  // exec()	Виконати запит та отримати результат (Promise)
 
   // Обчислюємо додаткові дані для пагінації
   const paginationData = calculatePaginationData(studentsCount, perPage, page);
