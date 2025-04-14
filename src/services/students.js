@@ -1,3 +1,4 @@
+import { SORT_ORDER } from '../constants/index.js';
 import { StudentsCollection } from '../db/models/student.js';
 import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 
@@ -7,7 +8,13 @@ import { calculatePaginationData } from '../utils/calculatePaginationData.js';
 // };
 
 // Функція для отримання всіх студентів з пагінацією
-export const getAllStudents = async ({ page, perPage }) => {
+export const getAllStudents = async ({
+  page = 1,
+  perPage = 10,
+  sortOrder = SORT_ORDER.ASC,
+  sortBy = '_id',
+  filter = {},
+}) => {
   // Встановлюємо кількість елементів на сторінці (limit)
   const limit = perPage;
   // Обчислюємо пропуск елементів (skip) для пагінації
@@ -16,16 +23,46 @@ export const getAllStudents = async ({ page, perPage }) => {
   // Створюємо запит для отримання колекції студентів
   const studentsQuery = StudentsCollection.find();
 
+  if (filter.gender) {
+    studentsQuery.where('gender').equals(filter.gender);
+  }
+  if (filter.maxAge) {
+    studentsQuery.where('age').lte(filter.maxAge);
+  }
+  if (filter.minAge) {
+    studentsQuery.where('age').gte(filter.minAge);
+  }
+  if (filter.maxAvgMark) {
+    studentsQuery.where('avgMark').lte(filter.maxAvgMark);
+  }
+  if (filter.minAvgMark) {
+    studentsQuery.where('avgMark').gte(filter.minAvgMark);
+  }
+
   // Обчислюємо загальну кількість студентів
-  const studentsCount = await StudentsCollection.find()
-    .merge(studentsQuery) // Зливаємо запит для підрахунку студентів
-    .countDocuments(); // Підраховуємо документи (студентів)
+  // const studentsCount = await StudentsCollection.find()
+  //   .merge(studentsQuery) // Зливаємо запит для підрахунку студентів
+  //   .countDocuments(); // Підраховуємо документи (студентів)
 
   // Отримуємо студентів з застосуванням пагінації
-  const students = await studentsQuery.skip(skip).limit(limit).exec();
+  // const students = await studentsQuery
+  //   .skip(skip)
+  //   .limit(limit)
+  //   .sort({ [sortBy]: sortOrder })
+  //   .exec();
   //skip(n)	Пропустити перші n результатів
   // limit(n)	Отримати максимум n результатів
   // exec()	Виконати запит та отримати результат (Promise)
+
+  // Цей рефакторинг коду використовує підхід паралельної обробки запитів до бази даних за допомогою Promise.all, що дозволяє ефективніше використовувати ресурси і скоротити час відповіді сервера.
+  const [studentsCount, students] = await Promise.all([
+    StudentsCollection.find().merge(studentsQuery).countDocuments(),
+    studentsQuery
+      .skip(skip)
+      .limit(limit)
+      .sort({ [sortBy]: sortOrder })
+      .exec(),
+  ]);
 
   // Обчислюємо додаткові дані для пагінації
   const paginationData = calculatePaginationData(studentsCount, perPage, page);

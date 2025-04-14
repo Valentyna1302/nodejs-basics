@@ -7,12 +7,23 @@ import {
   updateStudent,
 } from '../services/students.js';
 import { parsePaginationParams } from '../utils/parsePaginationParams.js';
+import { parseSortParams } from '../utils/parseSortParams.js';
+import { parseFilterParams } from '../utils/parseFilterParams.js';
 
 export const getStudentsController = async (req, res) => {
   // Отримуємо параметри пагінації (сторінка і кількість на сторінці) з запиту
   const { page, perPage } = parsePaginationParams(req.query);
+  const { sortBy, sortOrder } = parseSortParams(req.query);
+  const filter = parseFilterParams(req.query);
+
   // Викликаємо функцію для отримання списку студентів з вказаною пагінацією
-  const students = await getAllStudents({ page, perPage });
+  const students = await getAllStudents({
+    page,
+    perPage,
+    sortBy,
+    sortOrder,
+    filter,
+  });
 
   res.json({
     status: 200,
