@@ -4,7 +4,7 @@ import pino from 'pino-http';
 
 import { errorHandler } from './middlewares/errorHandler.js';
 import { notFoundHandler } from './middlewares/notFoundHandler.js';
-import studentsRouter from './routes/students.js';
+import router from './routes/index.js';
 import { getEnvVar } from './utils/getEnvVar.js';
 
 const PORT = Number(getEnvVar('PORT', '3000'));
@@ -29,7 +29,7 @@ export const startServer = () => {
     });
   });
 
-  app.use(studentsRouter);
+  app.use(router);
   app.use('*', notFoundHandler);
   app.use(errorHandler);
 
