@@ -1,3 +1,5 @@
+// src/routers/index.js
+
 import { Router } from 'express';
 import authRouter from './auth.js';
 import studentsRouter from './students.js';
