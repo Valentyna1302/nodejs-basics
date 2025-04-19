@@ -10,6 +10,7 @@ import {
   patchStudentController,
   upsertStudentController,
 } from '../controllers/students.js';
+import { authenticate } from '../middlewares/authenticate.js';
 import { isValidId } from '../middlewares/isValidId.js';
 import { validateBody } from '../middlewares/validateBody.js';
 import { ctrlWrapper } from '../utils/ctrlWrapper.js';
@@ -19,6 +20,8 @@ import {
 } from '../validation/students.js';
 
 const router = Router();
+
+router.use(authenticate);
 
 router.get('/', ctrlWrapper(getStudentsController));
 
