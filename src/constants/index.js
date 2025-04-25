@@ -1,4 +1,5 @@
 // src/constants/index.js
+import path from 'node:path';
 
 export const SORT_ORDER = {
   ASC: 'asc',
@@ -24,3 +25,5 @@ export const SMTP = {
   SMTP_PASSWORD: 'SMTP_PASSWORD',
   SMTP_FROM: 'SMTP_FROM',
 };
+
+export const TEMPLATES_DIR = path.join(process.cwd(), 'src', 'templates');
